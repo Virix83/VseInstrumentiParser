@@ -13,12 +13,14 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+import config
 
 def ConnectDB():
+
     try:
         conn = mariadb.connect(
             user="test",
-            password="8I7ArIqE85Ro",
+            password=config.sql_password,
             host="localhost",
             port=3306,
             database="db1", autocommit=True
@@ -97,14 +99,14 @@ def WriteALetter(OldPrice, P1):
 
     # Define the image's ID as referenced above
     msgImage.add_header('Content-ID', '<image1>')
-    sent_from = 'virix83@gmail.com'
-    to = 'virix83@gmail.com'
-    gmail_user = 'virix83@gmail.com'
-    gmail_password = 'bmiqdoxypekggixd'
+    sent_from = config.my_gmail
+    to = config.my_gmail
+    gmail_user = config.my_gmail
+    gmail_password = config.gmail_password
     msg = MIMEMultipart('alternative')
     msg['Subject'] = f'{P1[1]}, Артикул {P1[0]}'
     msg['From'] = gmail_user
-    msg['To'] = 'virix83@gmail.com'
+    msg['To'] = config.my_gmail
     msg.attach(msgImage)
     msg.attach(MIMEText(body, 'html'))
     try:
