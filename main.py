@@ -73,11 +73,10 @@ def ExtractPrice(cur, P1):
 
 def ExtractAllData(P1):
     conn = http.client.HTTPSConnection("api.scrapingant.com")
-    url = "/v2/general?url=https://www.vseinstrumenti.ru/search_main.php?what="+P1+"&x-api-key=2a50a1297ca1482aba04b619060a1595&proxy_country=RU&browser=true"
+    url = "/v2/general?url=https://www.vseinstrumenti.ru/search_main.php?what="+P1+"&x-api-key="+config.scrapingant_apikey+"&proxy_country=RU&browser=true"
     conn.request("GET", url)
     res = conn.getresponse()
     data = res.read()
-    #print(data.decode("utf-8"))
     soup = BeautifulSoup(data, 'lxml')
     try:
         itemName = soup.find("meta", property="og:title").get("content")
@@ -91,13 +90,9 @@ def WriteALetter(OldPrice, P1):
     body = f'Предыдущая цена - {OldPrice}, новая цена - {P1[2]}<BR>'
     body += f'Ссылка - https://www.vseinstrumenti.ru/search_main.php?what={P1[0]}'
     body += f'<BR><img src="cid:image1"><br>'
-
-    # Attach Image
     fp = open('price_draw.png', 'rb')  # Read image
     msgImage = MIMEImage(fp.read())
     fp.close()
-
-    # Define the image's ID as referenced above
     msgImage.add_header('Content-ID', '<image1>')
     sent_from = config.my_gmail
     to = config.my_gmail
@@ -146,7 +141,7 @@ def PriceGraph(cur, P1):
     return cur.fetchone()
 
 def main():
-    Articles = ['15877750'] #, '15513457', '15538221', '16306109', '17459934', '15857594', '22554075', '20425450', '17504340', '16264903', '16264905', '16264906', '19643118', '21843010']
+    Articles = ['15513457', '15538221', '16306109', '17459934', '15857594', '22554075', '20425450', '17504340', '16264903', '16264905', '16264906', '19643118', '21843010']
     cur = ConnectDB()
     for Article in Articles:
         print(f'{cur} - {Article}')
@@ -158,7 +153,7 @@ def main():
                 # Шлёи письмо со старой и новой ценой, а затем обновляем цену в базе
                 PriceGraph(cur, P0[0])
                 WriteALetter(ExtractPrice(cur, Article), P0)
-                UpdatePriceIntoDB(cur, P0)
+                UpdatePriceIntoDB(cur,  P0)
                 UpdatePriceIntoHistoryDB(cur,P0)
     '''
     PriceGraph(cur,Articles[0])
